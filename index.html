@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+
+
+    <script src="components/scatterplot.js"></script>
+    <script src="components/histogram.js"></script>
+    <script src="components/pc.js"></script>
+    <script src="components/datatable.js"></script>
+
+
+    <title>My Scatterplot</title>
+    <style>
+        body {
+            background: #eee;
+            overflow-y: scroll;
+        }
+
+        .container {
+            width: 800px;
+            background: white;
+        }
+
+        .brushed {
+            stroke-width: 1;
+            stroke: gray;
+            r: 5;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="container navbar navbar-light bg-light">
+            <div class="container-fluid">
+                <span class="navbar-brand mb-0 h1">My Scatterplot</span>
+            </div>
+        </nav>
+
+    </header>
+
+    <main class="container pb-3">
+        <div class="row pt-2">
+            <div class="col-1 text-end pe-2"><strong>X:</strong></div>
+            <div class="col-11">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="x-encoding" value="Watch time(Minutes)" id="x-wt"
+                        checked>
+                    <label class="form-check-label" for="x-wt">Watch time(Minutes)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="x-encoding" value="Stream time(minutes)" id="x-st">
+                    <label class="form-check-label" for="x-st">Stream time(minutes)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="x-encoding" value="Peak viewers" id="x-pv">
+                    <label class="form-check-label" for="x-pv">Peak viewers</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="x-encoding" value="Average viewers" id="x-av">
+                    <label class="form-check-label" for="x-av">Average viewers</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="x-encoding" value="Followers" id="x-f">
+                    <label class="form-check-label" for="x-f">Followers</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="x-encoding" value="Followers gained" id="x-fg">
+                    <label class="form-check-label" for="x-fg">Followers gained</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="x-encoding" value="Views gained" id="x-vg">
+                    <label class="form-check-label" for="x-vg">Views gained</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1 text-end pe-2"><strong>Y:</strong></div>
+            <div class="col-11">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="y-encoding" value="Watch time(Minutes)" id="y-wt"
+                        checked>
+                    <label class="form-check-label" for="y-wt">Watch time(Minutes)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="y-encoding" value="Stream time(minutes)" id="y-st">
+                    <label class="form-check-label" for="y-st">Stream time(minutes)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="y-encoding" value="Peak viewers" id="y-pv">
+                    <label class="form-check-label" for="y-pv">Peak viewers</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="y-encoding" value="Average viewers" id="y-av">
+                    <label class="form-check-label" for="y-av">Average viewers</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="y-encoding" value="Followers" id="y-f">
+                    <label class="form-check-label" for="y-f">Followers</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="y-encoding" value="Followers gained" id="y-fg">
+                    <label class="form-check-label" for="y-fg">Followers gained</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="y-encoding" value="Views gained" id="y-vg">
+                    <label class="form-check-label" for="y-vg">Views gained</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col offset-1">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="use-color" checked>
+                    <label class="form-check-label" for="use-color">Color-encode Class</label>
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+            <svg width="400" height="400" id="scatterplot">
+            </svg>
+            <div class="tooltip bs-tooltip-top show" id="sc-tooltip" role="tooltip" style="display:none">
+                <div class="tooltip-arrow"></div>
+                <div class="tooltip-inner">
+                    Some tooltip text!
+                </div>
+            </div>
+
+            <svg width="400" height="400" id="histogram">
+            </svg>
+        </div>
+
+        <div class="text-center">
+            <svg id="pc">
+            </svg>
+        </div>
+
+        <table class="table table-striped text-center">
+            <thead>
+                <tr>
+                    <th>Channel</th>
+                    <th>Watch time(Minutes)</th>
+                    <th>Stream time(minutes)</th>
+                    <th>Peak viewers</th>
+                    <th>Average viewers</th>
+                    <th>Followers</th>
+                    <th>Followers gained</th>
+                    <th>Views gained</th>
+                    <th>Partnered</th>
+                    <th>Mature</th>
+                    <th>Language</th>
+                </tr>
+            </thead>
+            <tbody id="data-table">
+
+            </tbody>
+        </table>
+
+    </main>
+
+    <script>
+        let data, brushedData, scatterplot, histogram, pc, dataTable;
+
+        function updateScatterplot() {
+            let xVar = d3.select("input[type=radio][name=x-encoding]:checked").property("value");
+            let yVar = d3.select("input[type=radio][name=y-encoding]:checked").property("value");
+            let useColor = d3.select("#use-color").property("checked");
+            scatterplot.update(xVar, yVar, "Language", useColor);
+        }
+
+        function updateHistogram() {
+            histogram.update(brushedData && brushedData.length > 0 ? brushedData : data, "Language");
+        }
+
+        function updatePC() {
+            pc.update(brushedData && brushedData.length > 0 ? brushedData : data, "Language");
+        }
+
+        function updateDataTable() {
+            dataTable.update(brushedData && brushedData.length > 0 ? brushedData : data, data.columns)
+        }
+
+        d3.csv("https://raw.githubusercontent.com/mingeun128/InfoVis-Top-Streamers-on-Twitch/main/twitchdata-update.csv")
+            .then(csvData => {
+                csvData.forEach(d => {
+                    d["Channel"] = +d["Channel"];
+                    d["Watch time(Minutes)"] = +d["Watch time(Minutes)"];
+                    d["Stream time(minutes)"] = +d["Stream time(minutes)"];
+                    d["Peak viewers"] = +d["Peak viewers"];
+                    d["Average viewers"] = +d["Average viewers"];
+                    d["Followers"] = +d["Followers"];
+                    d["Followers gained"] = +d["Followers gained"];
+                    d["Views gained"] = +d["Views gained"];
+                    d["Partnered"] = +d["Partnered"];
+                    d["Mature"] = +d["Mature"];
+                    d["Language"] = +d["Language"];
+                });
+
+                data = csvData;
+
+                scatterplot = new Scatterplot("#scatterplot", "#sc-tooltip", data);
+                scatterplot.initialize();
+
+                updateScatterplot();
+                d3.selectAll("input[type=radio][name=x-encoding]").on("change", updateScatterplot);
+                d3.selectAll("input[type=radio][name=y-encoding]").on("change", updateScatterplot);
+                d3.selectAll("#use-color").on("change", updateScatterplot);
+
+                scatterplot.on("brush", (brushedItems) => {
+                    brushedData = brushedItems;
+                    updateHistogram();
+                    updatePC();
+                    updateDataTable();
+                });
+
+                histogram = new Histogram("#histogram");
+                histogram.initialize();
+
+                updateHistogram();
+
+                pc = new PC("#pc", data, ["petal.length", "petal.width", "sepal.length", "sepal.width"]);
+                pc.initialize();
+
+                updatePC();
+
+                dataTable = new DataTable("#data-table");
+
+                updateDataTable();
+            })
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
