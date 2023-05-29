@@ -1,9 +1,9 @@
 class Scatterplot {
     margin = {
-        top: 10, right: 100, bottom: 40, left: 40
+        top: 10, right: 100, bottom: 40, left: 100
     }
 
-    constructor(svg, tooltip, data, width = 250, height = 250) {
+    constructor(svg, tooltip, data, width = 1000, height = 300) {
         this.svg = svg;
         this.tooltip = tooltip;
         this.data = data;
@@ -22,7 +22,7 @@ class Scatterplot {
 
         this.xScale = d3.scaleLinear();
         this.yScale = d3.scaleLinear();
-        this.zScale = d3.scaleOrdinal().range(d3.schemeCategory10)
+        this.zScale = d3.scaleOrdinal().range(d3.schemeCategory10);
 
         this.svg
             .attr("width", this.width + this.margin.left + this.margin.right)
@@ -52,7 +52,7 @@ class Scatterplot {
             .join("circle")
             .on("mouseover", (e, d) => {
                 this.tooltip.select(".tooltip-inner")
-                    .html(`${this.xVar}: ${d[this.xVar]}<br />${this.yVar}: ${d[this.yVar]}`);
+                    .html(`${d["Channel"]}<br />${this.xVar}: ${d[this.xVar].toLocaleString()}<br />${this.yVar}: ${d[this.yVar].toLocaleString()}`);
 
                 Popper.createPopper(e.target, this.tooltip.node(), {
                     placement: 'top',
@@ -93,7 +93,7 @@ class Scatterplot {
             this.legend
                 .style("display", "inline")
                 .style("font-size", ".8em")
-                .attr("transform", `translate(${this.width + this.margin.left + 10}, ${this.height / 2})`)
+                .attr("transform", `translate(${this.width + this.margin.left + 20}, ${this.height / 2 - 160})`)
                 .call(d3.legendColor().scale(this.zScale))
         }
         else {

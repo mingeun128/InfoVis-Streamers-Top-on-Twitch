@@ -3,13 +3,14 @@ class DataTable {
         this.id = id;
     }
 
-    update(data, columns) {
+    update(data, columns, rVar) {
         let table = d3.select(this.id);
-
+        this.rVar = rVar;
+        const slicedata = data.sort((a,b)=>b[this.rVar]-a[this.rVar]).slice(0,5);
 
         let rows = table
             .selectAll("tr")
-            .data(data)
+            .data(slicedata)
             .join("tr");
 
         rows.selectAll("td")

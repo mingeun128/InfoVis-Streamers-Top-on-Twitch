@@ -15,11 +15,11 @@
 
     <script src="components/scatterplot.js"></script>
     <script src="components/histogram.js"></script>
-    <script src="components/pc.js"></script>
+    <script src="components/barchart.js"></script>
     <script src="components/datatable.js"></script>
 
 
-    <title>My Scatterplot</title>
+    <title>Top Streamers on Twitch Visualization</title>
     <style>
         body {
             background: #eee;
@@ -27,7 +27,7 @@
         }
 
         .container {
-            width: 800px;
+            width: 1600px;
             background: white;
         }
 
@@ -43,11 +43,12 @@
     <header>
         <nav class="container navbar navbar-light bg-light">
             <div class="container-fluid">
-                <span class="navbar-brand mb-0 h1">My Scatterplot</span>
+                <span class="navbar-brand mb-0 h1">Top Streamers on Twitch 2020</span>
             </div>
         </nav>
 
     </header>
+    <h1 class="text-center">Scatter Plot</h1>
 
     <main class="container pb-3">
         <div class="row pt-2">
@@ -135,16 +136,54 @@
                     Some tooltip text!
                 </div>
             </div>
-
+        </div>
+        <div class="text-center">
             <svg width="400" height="400" id="histogram">
             </svg>
         </div>
-
-        <div class="text-center">
-            <svg id="pc">
+    </main>
+    
+        <h1 class="text-center">Ranking Bar Chart (TOP 5)</h1>
+    <main class="container pb-3">
+        <div class="row">
+            <div class="col-1 text-end pe-2"><strong>Select:</strong></div>
+            <div class="col-11">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="rank-encoding" value="Watch time(Minutes)" id="r-wt"
+                        checked>
+                    <label class="form-check-label" for="r-wt">Watch time(Minutes)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="rank-encoding" value="Stream time(minutes)" id="r-st">
+                    <label class="form-check-label" for="r-st">Stream time(minutes)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="rank-encoding" value="Peak viewers" id="r-pv">
+                    <label class="form-check-label" for="r-pv">Peak viewers</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="rank-encoding" value="Average viewers" id="r-av">
+                    <label class="form-check-label" for="r-av">Average viewers</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="rank-encoding" value="Followers" id="r-f">
+                    <label class="form-check-label" for="r-f">Followers</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="rank-encoding" value="Followers gained" id="r-fg">
+                    <label class="form-check-label" for="r-fg">Followers gained</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="rank-encoding" value="Views gained" id="r-vg">
+                    <label class="form-check-label" for="r-vg">Views gained</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <svg id="bar">
             </svg>
         </div>
-
+    
         <table class="table table-striped text-center">
             <thead>
                 <tr>
@@ -169,7 +208,7 @@
     </main>
 
     <script>
-        let data, brushedData, scatterplot, histogram, pc, dataTable;
+        let data, brushedData, checkedData, scatterplot, histogram, barchart, dataTable;
 
         function updateScatterplot() {
             let xVar = d3.select("input[type=radio][name=x-encoding]:checked").property("value");
@@ -182,18 +221,25 @@
             histogram.update(brushedData && brushedData.length > 0 ? brushedData : data, "Language");
         }
 
+        function updateBarChart() {
+            let rVar = d3.select("input[type=radio][name=rank-encoding]:checked").property("value");
+            barchart.update(rVar);
+        }
+
         function updatePC() {
             pc.update(brushedData && brushedData.length > 0 ? brushedData : data, "Language");
         }
 
         function updateDataTable() {
-            dataTable.update(brushedData && brushedData.length > 0 ? brushedData : data, data.columns)
+            let rVar = d3.select("input[type=radio][name=rank-encoding]:checked").property("value");
+            dataTable.update(data, data.columns, rVar);
+            //dataTable.update(checkedData && checkedData.length > 0 ? brushedData : data, data.columns)
         }
 
         d3.csv("https://raw.githubusercontent.com/mingeun128/InfoVis-Top-Streamers-on-Twitch/main/twitchdata-update.csv")
             .then(csvData => {
                 csvData.forEach(d => {
-                    d["Channel"] = +d["Channel"];
+                    d["\"Channel\""] = +d["\"Channel\""];
                     d["Watch time(Minutes)"] = +d["Watch time(Minutes)"];
                     d["Stream time(minutes)"] = +d["Stream time(minutes)"];
                     d["Peak viewers"] = +d["Peak viewers"];
@@ -201,9 +247,9 @@
                     d["Followers"] = +d["Followers"];
                     d["Followers gained"] = +d["Followers gained"];
                     d["Views gained"] = +d["Views gained"];
-                    d["Partnered"] = +d["Partnered"];
-                    d["Mature"] = +d["Mature"];
-                    d["Language"] = +d["Language"];
+                    d["\"Partnered\""] = +d["\"Partnered\""];
+                    d["\"Mature\""] = +d["\"Mature\""];
+                    d["\"Language\""] = +d["\"Language\""];
                 });
 
                 data = csvData;
@@ -219,8 +265,6 @@
                 scatterplot.on("brush", (brushedItems) => {
                     brushedData = brushedItems;
                     updateHistogram();
-                    updatePC();
-                    updateDataTable();
                 });
 
                 histogram = new Histogram("#histogram");
@@ -228,14 +272,15 @@
 
                 updateHistogram();
 
-                pc = new PC("#pc", data, ["petal.length", "petal.width", "sepal.length", "sepal.width"]);
-                pc.initialize();
-
-                updatePC();
+                barchart = new BarChart("#bar",data);
+                barchart.initialize();
+                updateBarChart();
+                d3.selectAll("input[type=radio][name=rank-encoding]").on("change", (i)=>{updateBarChart(); updateDataTable()});
 
                 dataTable = new DataTable("#data-table");
-
                 updateDataTable();
+                //d3.selectAll("input[type=radio][name=rank-encoding]").on("change", updateDataTable);
+                
             })
     </script>
 
