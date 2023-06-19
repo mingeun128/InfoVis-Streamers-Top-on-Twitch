@@ -1,7 +1,10 @@
 # InfoVis for Top Streamers on Twitch
 Information Visualization on Twitch Top Streamers Dataset
 
-<https://youtu.be/h4gRQVg-iLE>
+YouTube Link : <https://youtu.be/h4gRQVg-iLE>
+
+Github Page Link : <https://mingeun128.github.io/InfoVis-Top-Streamers-on-Twitch/>
+
 
 ## What: Data Abstraction
 
